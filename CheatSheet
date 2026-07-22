@@ -1,0 +1,63 @@
+A. Předávání parametrů (Jak poslat data do funkce)
+Hodnotou (void f(int x)): Vytvoří se kopie. Pomalé pro velké objekty (vektory, stringy). Změny ve funkci se venku neprojeví.
+
+Referencí (void f(int& x)): Funkce dostane přímo originál. Co změníš uvnitř, změní se venku. Žádná kopie = rychlé.
+
+Konstantní referencí (void f(const string& x)): Zlatý standard. Funkce dostane originál, takže je to bleskurychlé, ale má zákaz ho měnit (const). Používá se pro předávání textů, vektorů, velkých objektů.
+
+Ukazatelem (void f(Ucet* x)): Funkce dostane adresu v paměti. Modifikuješ přes operátor šipky (x->metoda()).
+
+
+
+B. Virtuální metody, Abstrakce a Polymorfismus
+virtual void funkce(): Říká "Potomek mě může přepsat vlastním kódem". Je to absolutní základ polymorfismu.
+
+virtual void funkce() = 0: Čistě virtuální metoda. Dělá z třídy abstraktní třídu. Nedá se na ní zavolat new. Každý potomek ji musí vytvořit.
+
+virtual ~Trida(): Pamatuj: Pokud má třída aspoň jednu virtual metodu, MUSÍ mít virtual destruktor. Jinak při volání delete v poli ukazatelů nedojde ke smazání atributů potomka.
+
+override: Píše se do souboru .h k metodě potomka (void funkce() override;). Není povinný, ale hlídá překlepy – pokud se překlepneš v názvu, program ti to hned podtrhne červeně.
+
+
+C. Operátory a přetěžování (Overloading)
+Pokud přetěžuješ binární operátor pro porovnávání/počítání uvnitř třídy:
+
+bool operator==(const Trida& other) const;
+
+Pokud přetěžuješ modifikující operátor (+=, -=):
+
+Trida& operator+=(int hodnota); (Vrací referenci na sebe return *this;)
+
+Výpis do konzole (<<): Musí být vždycky friend a nedává se k němu Trida::.
+
+V hlavičce (.h): friend ostream& operator<<(ostream& os, const Trida& obj);
+
+V .cpp: ostream& operator<<(ostream& os, const Trida& obj) { os << obj.atribut; return os; }
+
+
+D. Práce s vektory (std::vector)
+v.push_back(hodnota): Přidá na konec.
+
+v.size(): Počet prvků.
+
+v.empty(): Vrací true, pokud je vektor prázdný.
+
+v.clear(): Smaže všechno.
+
+v.erase(v.begin() + i): Smaže prvek na indexu i.
+
+Cyklus klasický: for(int i = 0; i < v.size(); i++)
+
+Cyklus moderní: for(auto prvek : v) (pro čisté čtení) nebo for(auto& prvek : v) (pro modifikaci).
+
+
+E. Na co si dát pozor (Nejčastější fatální chyby)
+Dělení nulou: Vždy obal prumer = soucet / pocet; podmínkou if (pocet > 0).
+
+Ořezání desetinných čísel: Iteruješ přes vector<double>? Nepiš for (int i : vektor), hodnota 1.9 se stane 1. Vždy použij double nebo auto.
+
+Memory Leak: Udělal jsi new? Musíš udělat delete. U vektoru ukazatelů musíš přes for cyklus zavolat delete na každý prvek.
+
+Index Out of Bounds: Pole/vektor má velikost 5. Platné indexy jsou 0, 1, 2, 3, 4. Nesahej na index 5.
+
+Chybějící inicializace: Pokud máš lokální proměnnou int soucet; a rovnou do ní přičítáš, bude v ní tzv. "smetí z paměti" a vyjde ti nesmysl. Vždy piš int soucet = 0;.
