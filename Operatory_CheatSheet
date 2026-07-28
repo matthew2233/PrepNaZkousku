@@ -1,0 +1,232 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+// ========================================================================================
+// 1. OPERÁTORY PRO VÝPIS A NAČÍTÁNÍ (<<, >>)
+// Tyto operátory musí být volné funkce (často friend), protože levým operandem je stream.
+// ========================================================================================
+class Vozidlo {
+private:
+    string znacka;
+    int maximalniRychlost;
+
+public:
+    Vozidlo(string z, int r) : znacka(z), maximalniRychlost(r) {}
+
+    // SYNTAXE PRO VÝPIS (friend ostream& operator<<)
+    friend ostream& operator<<(ostream& os, const Vozidlo& v) {
+        os << "Vozidlo: " << v.znacka << " (Max rychlost: " << v.maximalniRychlost << " km/h)";
+        return os; // Nutné pro řetězení cout << a << b;
+    }
+
+    // SYNTAXE PRO NAČÍTÁNÍ (friend istream& operator>>)
+    // Chybí 'const', protože do objektu zapisujeme.
+    friend istream& operator>>(istream& is, Vozidlo& v) {
+        is >> v.znacka >> v.maximalniRychlost;
+        return is;
+    }
+};
+/* --- POUŽITÍ ---
+Vozidlo tank("Leopard", 70);
+cout << tank << endl;
+cin >> tank;
+*/
+
+
+// ========================================================================================
+// 2. ARITMETICKÉ OPERÁTORY (+, -, *, /)
+// Nemění původní objekty, ale vrací zcela nový objekt jako výsledek.
+// ========================================================================================
+class Vektor2D {
+public:
+    int x, y;
+    Vektor2D(int x, int y) : x(x), y(y) {}
+
+    // SYNTAXE: Trida operator+(const Trida& other) const;
+    // 'const' na konci, protože sčítáním se tento (levý) vektor nemění.
+    Vektor2D operator+(const Vektor2D& other) const {
+        return Vektor2D(this->x + other.x, this->y + other.y);
+    }
+
+    Vektor2D operator-(const Vektor2D& other) const {
+        return Vektor2D(this->x - other.x, this->y - other.y);
+    }
+};
+/* --- POUŽITÍ ---
+Vektor2D v1(10, 5);
+Vektor2D v2(2, 3);
+Vektor2D vysledek = v1 + v2; // vysledek.x = 12, vysledek.y = 8
+*/
+
+
+// ========================================================================================
+// 3. SLOŽENÉ PŘIŘAZENÍ (+=, -=, *=, /=)
+// Mění přímo aktuální objekt (levý operand). Vrací referenci na sebe sama (*this).
+// ========================================================================================
+class Nadrz {
+private:
+    double litryPaliva;
+public:
+    Nadrz(double l) : litryPaliva(l) {}
+
+    // SYNTAXE: Trida& operator+=(const Typ& hodnota);
+    Nadrz& operator+=(double pridavek) {
+        this->litryPaliva += pridavek;
+        return *this; // Dereference this ukazatele vrátí samotný objekt
+    }
+
+    Nadrz& operator-=(double ubytek) {
+        this->litryPaliva -= ubytek;
+        if(this->litryPaliva < 0) this->litryPaliva = 0;
+        return *this;
+    }
+};
+/* --- POUŽITÍ ---
+Nadrz kanystr(10);
+kanystr += 5.5; // Nyni obsahuje 15.5 litru
+*/
+
+
+// ========================================================================================
+// 4. RELAČNÍ (POROVNÁVACÍ) OPERÁTORY (==, !=, <, >, <=, >=)
+// Vrací vždy bool (true/false) a musí být const (objekty pouze čtou).
+// ========================================================================================
+class Teplomer {
+private:
+    double stupneCelsia;
+public:
+    Teplomer(double teplota) : stupneCelsia(teplota) {}
+
+    // SYNTAXE: bool operator==(const Trida& other) const;
+    bool operator==(const Teplomer& other) const {
+        return this->stupneCelsia == other.stupneCelsia;
+    }
+
+    // != je nejlepší implementovat jako negaci ==
+    bool operator!=(const Teplomer& other) const {
+        return !(*this == other); 
+    }
+
+    bool operator<(const Teplomer& other) const {
+        return this->stupneCelsia < other.stupneCelsia;
+    }
+};
+/* --- POUŽITÍ ---
+Teplomer praha(25.5);
+Teplomer oslo(12.0);
+if(oslo < praha) { ... }
+*/
+
+
+// ========================================================================================
+// 5. INKREMENTACE A DEKREMENTACE (++, --)
+// Pozor na rozdíl mezi prefixem (++x) a postfixem (x++ - vyžaduje dummy int).
+// ========================================================================================
+class HerniPostava {
+private:
+    int level;
+public:
+    HerniPostava(int l = 1) : level(l) {}
+
+    // 1. PREFIX (++x): Zvýší a vrátí upravený objekt
+    // SYNTAXE: Trida& operator++();
+    HerniPostava& operator++() {
+        this->level++;
+        return *this;
+    }
+
+    // 2. POSTFIX (x++): Uloží kopii, zvýší originál, vrátí kopii se starou hodnotou
+    // SYNTAXE: Trida operator++(int);
+    HerniPostava operator++(int) {
+        HerniPostava kopie = *this; 
+        this->level++;              
+        return kopie; // Nevrací se reference!              
+    }
+};
+/* --- POUŽITÍ ---
+HerniPostava hrac(5);
+++hrac; // Prefix: hned 6
+hrac++; // Postfix: vrací 6, ale po proběhnutí už je 7
+*/
+
+
+// ========================================================================================
+// 6. OPERÁTOR INDEXACE ([])
+// Dvě verze: jedna pro zápis/čtení (vrací referenci) a druhá const (jen pro čtení).
+// ========================================================================================
+class Skladiste {
+private:
+    vector<string> polozky;
+public:
+    Skladiste(vector<string> p) : polozky(p) {}
+
+    // 1. Verze pro zápis i čtení (vrací referenci)
+    string& operator[](int index) {
+        return polozky[index];
+    }
+
+    // 2. Verze pouze pro const čtení
+    const string& operator[](int index) const {
+        return polozky[index];
+    }
+};
+/* --- POUŽITÍ ---
+Skladiste hala({"Bedna", "Paleta", "Sud"});
+hala[1] = "Krabice"; // Přepíše "Paleta" na "Krabice"
+*/
+
+
+// ========================================================================================
+// 7. OPERÁTOR PŘIŘAZENÍ (=)
+// Nutná ochrana proti přiřazení do sebe sama (a = a;) a vytvoření hluboké kopie.
+// ========================================================================================
+class DynamickaPamet {
+private:
+    int* dataUkazatel;
+public:
+    DynamickaPamet(int hodnota) { dataUkazatel = new int(hodnota); }
+    ~DynamickaPamet() { delete dataUkazatel; }
+
+    // SYNTAXE: Trida& operator=(const Trida& other);
+    DynamickaPamet& operator=(const DynamickaPamet& other) {
+        // 1. Ochrana proti self-assignmentu
+        if (this == &other) {
+            return *this;
+        }
+
+        // 2. Hluboká kopie (kopírujeme hodnotu, ne adresu)
+        *this->dataUkazatel = *other.dataUkazatel;
+
+        // 3. Vrácení reference
+        return *this;
+    }
+};
+/* --- POUŽITÍ ---
+DynamickaPamet d1(100);
+DynamickaPamet d2(200);
+d1 = d2; 
+*/
+
+
+// ========================================================================================
+// 8. FUNKTOR - OPERÁTOR VOLÁNÍ FUNKCE ()
+// Umožňuje chovat se k objektu jako k funkci.
+// ========================================================================================
+class PrevodnikJednotek {
+private:
+    double koeficient;
+public:
+    PrevodnikJednotek(double k) : koeficient(k) {}
+
+    // SYNTAXE: Typ operator()(Parametry...) const;
+    double operator()(double hodnota) const {
+        return hodnota * koeficient;
+    }
+};
+/* --- POUŽITÍ ---
+PrevodnikJednotek zKiloNaLibry(2.20462);
+double vaha = zKiloNaLibry(80.0); // 176.37
+*/
