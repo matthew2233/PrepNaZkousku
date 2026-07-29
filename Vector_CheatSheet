@@ -1,0 +1,113 @@
+#include <iostream>
+#include <vector>
+#include <algorithm> // Nutné pro std::find, std::sort atd.
+
+using namespace std;
+
+int main() {
+    // =====================================================================
+    // 1. ZALOŽENÍ A INICIALIZACE VEKTORU
+    // =====================================================================
+    
+    vector<int> v1;                  // Založí úplně prázdný vektor
+    vector<int> v2 = {10, 20, 30};   // Založí vektor a rovnou do něj dá 3 prvky
+    vector<int> v3(5, 100);          // Založí vektor o 5 prvcích, všechny mají hodnotu 100
+    
+    // =====================================================================
+    // 2. PŘÍSTUP K PRVKŮM (Čtení a zápis)
+    // =====================================================================
+    
+    // Operátor [] - Nejrychlejší. NEKONTROLUJE, jestli index existuje. 
+    // Pokud sáhneš mimo (např. v2[10]), program spadne (Segfault).
+    v2[0] = 15; 
+    
+    // .at() - Bezpečnější verze []. Kontroluje, jestli index existuje. 
+    // Pokud ne, vyhodí výjimku (out_of_range), ale program jde teoreticky zachránit.
+    v2.at(1) = 25; 
+    
+    // .front() - Vrací referenci na ÚPLNĚ PRVNÍ prvek (index 0).
+    int prvni = v2.front(); 
+    
+    // .back() - Vrací referenci na ÚPLNĚ POSLEDNÍ prvek (index size - 1).
+    // Skvělé pro zjištění hodnoty posledního vloženého prvku.
+    int posledni = v2.back(); 
+    v2.back() = 99; // Přepíše poslední prvek na 99
+
+    // =====================================================================
+    // 3. ZMĚNY VELIKOSTI A PŘIDÁVÁNÍ PRVKŮ
+    // =====================================================================
+    
+    // .push_back(hodnota) - Přidá nový prvek na konec vektoru.
+    // Nejpoužívanější metoda vůbec. Vektor se sám "nafoukne".
+    v1.push_back(5);
+    v1.push_back(10);
+    
+    // .pop_back() - Smaže poslední prvek ve vektoru.
+    // POZOR: Nevrací jeho hodnotu! Jen ho smaže. Nikdy nevolej na prázdný vektor!
+    v1.pop_back(); 
+    
+    // .clear() - Smaže ÚPLNĚ VŠECHNY prvky. Vektor bude prázdný (size bude 0).
+    v3.clear();
+
+    // =====================================================================
+    // 4. KAPACITA A VELIKOST (Informace o vektoru)
+    // =====================================================================
+    
+    // .size() - Vrací aktuální POČET PRVKŮ ve vektoru. Typicky pro for cyklus.
+    int pocet = v2.size(); 
+    
+    // .empty() - Vrací true, pokud je vektor prázdný (size == 0), jinak false.
+    // Vždy lepší použít if(v.empty()) než if(v.size() == 0).
+    if (v3.empty()) {
+        cout << "Vektor v3 je prazdny!" << endl;
+    }
+    
+    // .resize(nova_velikost) - Změní počet prvků.
+    // Pokud zmenšuješ, ořízne konec. Pokud zvětšuješ, doplní nuly.
+    v2.resize(5); 
+
+    // =====================================================================
+    // 5. PRÁCE S ITERÁTORY (Ukazatele na pozice)
+    // =====================================================================
+    
+    // .begin() - Vrací iterátor (ukazatel) na první prvek.
+    // .end() - Vrací iterátor kousek ZA poslední prvek (značí konec vektoru).
+    
+    // =====================================================================
+    // 6. MAZÁNÍ A VKLÁDÁNÍ UVNITŘ VEKTORU (Vyžaduje iterátory!)
+    // =====================================================================
+    vector<int> v4 = {10, 20, 30, 40, 50};
+
+    // .erase(pozice) - Smaže prvek na konkrétní pozici. 
+    // Všechny prvky napravo od něj se posunou o 1 doleva.
+    // Příklad: Smazání druhého prvku (index 1). K begin() přičteme 1.
+    v4.erase(v4.begin() + 1); // Zůstane: 10, 30, 40, 50
+    
+    // .erase(od, do) - Smaže rozsah prvků.
+    // Příklad: Smazání prvních dvou prvků.
+    v4.erase(v4.begin(), v4.begin() + 2); // Zůstane: 40, 50
+    
+    // .insert(pozice, hodnota) - Vloží hodnotu na pozici a zbytek posune doprava.
+    // Příklad: Vložení čísla 99 na úplný začátek.
+    v4.insert(v4.begin(), 99); // Výsledek: 99, 40, 50
+
+    // =====================================================================
+    // 7. DALŠÍ UŽITEČNÉ METODY (Vyžadují #include <algorithm>)
+    // =====================================================================
+    
+    // std::sort(od, do) - Seřadí vektor od nejmenšího po největší.
+    vector<int> v5 = {5, 2, 8, 1};
+    sort(v5.begin(), v5.end()); // Výsledek: 1, 2, 5, 8
+    
+    // std::reverse(od, do) - Otočí vektor pozpátku.
+    reverse(v5.begin(), v5.end()); // Výsledek: 8, 5, 2, 1
+    
+    // std::find(od, do, hodnota) - Hledá prvek.
+    // Vrací iterátor na prvek, pokud ho najde. Pokud ne, vrací .end().
+    auto it = find(v5.begin(), v5.end(), 5);
+    if (it != v5.end()) {
+        cout << "Prvek nalezen na pozici: " << distance(v5.begin(), it) << endl;
+    }
+
+    return 0;
+}
